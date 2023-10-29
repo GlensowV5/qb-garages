@@ -1,0 +1,35 @@
+{
+	"folders": [
+		{
+			"uri": "vscode-vfs://github/GlensowV5/qb-garagesv2"
+		}
+	],
+	"settings": {
+		"Lua.runtime.version": "Lua 5.4",
+		"Lua.runtime.plugin": "c:\\Users\\Administrator\\.vscode\\extensions\\overextended.cfxlua-vscode-1.7.4\\Lua\\plugin.lua",
+		"Lua.runtime.nonstandardSymbol": [
+			"/**/",
+			"`",
+			"+=",
+			"-=",
+			"*=",
+			"/=",
+			"<<=",
+			">>=",
+			"&=",
+			"|=",
+			"^="
+		],
+		"Lua.workspace.ignoreDir": [
+			".vscode",
+			".git",
+			".github",
+			"node_modules"
+		],
+		"Lua.workspace.library": [
+			"c:\\Users\\Administrator\\.vscode\\extensions\\overextended.cfxlua-vscode-1.7.4\\Lua\\runtime",
+			"c:\\Users\\Administrator\\.vscode\\extensions\\overextended.cfxlua-vscode-1.7.4\\Lua\\natives\\CFX-NATIVE",
+			"c:\\Users\\Administrator\\.vscode\\extensions\\overextended.cfxlua-vscode-1.7.4\\Lua\\natives\\GTAV"
+		]
+	}
+}

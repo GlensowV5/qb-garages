@@ -205,53 +205,80 @@ RegisterNetEvent("qb-garage:server:UpdateSpawnedVehicle", function(plate, value)
     VehicleSpawnerVehicles[plate] = value
 end)
 
-QBCore.Functions.CreateCallback('qb-garage:server:spawnvehicle', function (source, cb, vehInfo, coords, heading, warp)
-    local hash = type(vehInfo.vehicle) == 'string' and joaat(vehInfo.vehicle) or vehInfo.vehicle;
-
-    local ped
-    if not coords then
-        ped = GetPlayerPed(source)
-        coords = GetEntityCoords(ped)
-    end
-
-    QBCore.Functions.TriggerClientCallback('qb-garages:client:GetVehicleType', source, function (vehicleType)
-
-        if not CreateVehicleServerSetter then
-            error('^1CreateVehicleServerSetter is not available on your artifact, please use artifact 5904 or above to be able to use this^0')
-            return
-        end
-
-        local veh = CreateVehicleServerSetter and CreateVehicleServerSetter(hash, vehicleType, coords.x, coords.y, coords.z, heading) or CreateVehicle(hash, coords.x, coords.y, coords.z, heading, true, true)
-        Wait(500)
+if Config.BFakePlates then
+    QBCore.Functions.CreateCallback('qb-garage:server:spawnvehicle', function (source, cb, vehInfo, coords, warp)
+        local veh = QBCore.Functions.SpawnVehicle(source, vehInfo.vehicle, coords, warp)
+        local plate = vehInfo.plate
+        local hasFakePlate = exports['brazzers-fakeplates']:getFakePlateFromPlate(plate)
+        
         if not veh or not NetworkGetNetworkIdFromEntity(veh) then
             print('ISSUE HERE', veh, NetworkGetNetworkIdFromEntity(veh))
         end
-
-        while not DoesEntityExist(veh) do
-            Wait(0)
-        end
-    
-        while GetVehicleNumberPlateText(veh) == "" do
-            Wait(0)
-        end
-        
         local vehProps = {}
-        local plate = string.upper(vehInfo.plate)
-        if plate then
-            SetVehicleNumberPlateText(veh, plate)
-        end
-
-        if warp then
-            SetPedIntoVehicle(source, veh, -1)
-        end
-
         local result = MySQL.query.await('SELECT mods FROM player_vehicles WHERE plate = ?', {plate})
         if result[1] then vehProps = json.decode(result[1].mods) end
         local netId = NetworkGetNetworkIdFromEntity(veh)
         OutsideVehicles[plate] = {netID = netId, entity = veh}
-        cb(netId, vehProps or {})
-    end, hash)
-end)
+    
+        if hasFakePlate then 
+            SetVehicleNumberPlateText(veh, hasFakePlate)
+            TriggerClientEvent("vehiclekeys:client:SetOwner", source, hasFakePlate)
+        else 
+            SetVehicleNumberPlateText(veh, plate)
+            TriggerClientEvent("vehiclekeys:client:SetOwner", source, plate)
+        end
+    
+        cb(netId, vehProps)
+    end)
+else
+    QBCore.Functions.CreateCallback('qb-garage:server:spawnvehicle', function (source, cb, vehInfo, coords, heading, warp)
+        local hash = type(vehInfo.vehicle) == 'string' and joaat(vehInfo.vehicle) or vehInfo.vehicle;
+
+        local ped
+        if not coords then
+            ped = GetPlayerPed(source)
+            coords = GetEntityCoords(ped)
+        end
+
+        QBCore.Functions.TriggerClientCallback('qb-garages:client:GetVehicleType', source, function (vehicleType)
+
+            if not CreateVehicleServerSetter then
+                error('^1CreateVehicleServerSetter is not available on your artifact, please use artifact 5904 or above to be able to use this^0')
+                return
+            end
+
+            local veh = CreateVehicleServerSetter and CreateVehicleServerSetter(hash, vehicleType, coords.x, coords.y, coords.z, heading) or CreateVehicle(hash, coords.x, coords.y, coords.z, heading, true, true)
+            Wait(500)
+            if not veh or not NetworkGetNetworkIdFromEntity(veh) then
+                print('ISSUE HERE', veh, NetworkGetNetworkIdFromEntity(veh))
+            end
+
+            while not DoesEntityExist(veh) do
+                Wait(0)
+            end
+        
+            while GetVehicleNumberPlateText(veh) == "" do
+                Wait(0)
+            end
+            
+            local vehProps = {}
+            local plate = string.upper(vehInfo.plate)
+            if plate then
+                SetVehicleNumberPlateText(veh, plate)
+            end
+
+            if warp then
+                SetPedIntoVehicle(source, veh, -1)
+            end
+
+            local result = MySQL.query.await('SELECT mods FROM player_vehicles WHERE plate = ?', {plate})
+            if result[1] then vehProps = json.decode(result[1].mods) end
+            local netId = NetworkGetNetworkIdFromEntity(veh)
+            OutsideVehicles[plate] = {netID = netId, entity = veh}
+            cb(netId, vehProps or {})
+        end, hash)
+    end)
+end
 
 local function GetVehicles(citizenid, garageName, state, cb)
     local result = nil
@@ -384,79 +411,190 @@ QBCore.Functions.CreateCallback("qb-garage:server:GetGarageVehicles", function(s
 end)
 
 
-
-QBCore.Functions.CreateCallback("qb-garage:server:checkOwnership", function(source, cb, plate, garageType, garage, gang)
-    plate = string.upper(plate)
-    local src = source
-    local pData = QBCore.Functions.GetPlayer(src)
-    if garageType == "public" then        --Public garages only for player cars
-        local addSQLForAllowParkingAnyonesVehicle = ""
-        if not Config.AllowParkingAnyonesVehicle then
-            addSQLForAllowParkingAnyonesVehicle = " AND citizenid = '"..pData.PlayerData.citizenid.."' "
+if Config.BFakePlates then
+    QBCore.Functions.CreateCallback("qb-garage:server:checkOwnership", function(source, cb, plate, garageType, garage, gang)
+        local src = source
+        local pData = QBCore.Functions.GetPlayer(src)
+        if garageType == "public" then        --Public garages only for player cars
+            local addSQLForAllowParkingAnyonesVehicle = ""
+            if not Config.AllowParkingAnyonesVehicle then
+                addSQLForAllowParkingAnyonesVehicle = " AND citizenid = '"..pData.PlayerData.citizenid.."' "
+            end
+             MySQL.query('SELECT * FROM player_vehicles WHERE plate = ? ' .. addSQLForAllowParkingAnyonesVehicle,{plate}, function(result)
+                if result[1] then
+                    cb(true)
+                else
+                    MySQL.query('SELECT * FROM player_vehicles WHERE fakeplate = ?', {plate}, function(fakeplate)
+                        if fakeplate[1] then
+                            cb(true)
+                        else
+                            cb(false)
+                        end
+                    end)
+                end
+            end)
+        elseif garageType == "house" then     --House garages only for player cars that have keys of the house
+             MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?', {plate}, function(result)
+                if result[1] then
+                    cb(true)
+                else
+                    MySQL.query('SELECT * FROM player_vehicles WHERE fakeplate = ?', {plate}, function(fakeplate)
+                        if fakeplate[1] then
+                            cb(true)
+                        else
+                            cb(false)
+                        end
+                    end)
+                end
+            end)
+        elseif garageType == "gang" then        --Gang garages only for gang members cars (for sharing)
+             MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?', {plate}, function(result)
+                if result[1] then
+                    --Check if found owner is part of the gang
+                    local Player = QBCore.Functions.GetPlayer(source)
+                    local playerGang = Player.PlayerData.gang.name
+                    cb(playerGang == gang)
+                else
+                    MySQL.query('SELECT * FROM player_vehicles WHERE fakeplate = ?', {plate}, function(fakeplate)
+                        if fakeplate[1] then
+                            cb(true)
+                        else
+                            cb(false)
+                        end
+                    end)
+                end
+            end)
+        else                            --Job garages only for cars that are owned by someone (for sharing and service) or only by player depending of config
+            local shared = ''
+            if not TableContains(Config.SharedJobGarages, garage) then
+                shared = " AND citizenid = '"..pData.PlayerData.citizenid.."'"
+            end
+             MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?'..shared, {plate}, function(result)
+                if result[1] then
+                    cb(true)
+                else
+                    MySQL.query('SELECT * FROM player_vehicles WHERE fakeplate = ?'..shared, {plate}, function(fakeplate)
+                        if fakeplate[1] then
+                            cb(true)
+                        else
+                            cb(false)
+                        end
+                    end)
+                end
+            end)
         end
-         MySQL.query('SELECT * FROM player_vehicles WHERE plate = ? ' .. addSQLForAllowParkingAnyonesVehicle,{plate}, function(result)
-            if result[1] then
-                cb(true)
-            else
-                cb(false)
-            end
-        end)
-    elseif garageType == "house" then     --House garages only for player cars that have keys of the house
-         MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?', {plate}, function(result)
-            if result[1] then
-                cb(true)
-            else
-                cb(false)
-            end
-        end)
-    elseif garageType == "gang" then        --Gang garages only for gang members cars (for sharing)
-         MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?', {plate}, function(result)
-            if result[1] then
-                --Check if found owner is part of the gang
-                local Player = QBCore.Functions.GetPlayer(source)
-                local playerGang = Player.PlayerData.gang.name
-                cb(playerGang == gang)
-            else
-                cb(false)
-            end
-        end)
-    else                            --Job garages only for cars that are owned by someone (for sharing and service) or only by player depending of config
-        local shared = ''
-        if not TableContains(Config.SharedJobGarages, garage) then
-            shared = " AND citizenid = '"..pData.PlayerData.citizenid.."'"
+    end)
+    QBCore.Functions.CreateCallback("qb-garage:server:GetVehicleProperties", function(source, cb, plate)
+        local properties = {}
+        local hasFakePlate = exports['brazzers-fakeplates']:getFakePlateFromPlate(plate)
+        if hasFakePlate then plate = hasFakePlate end
+        local result = MySQL.query.await('SELECT mods FROM player_vehicles WHERE plate = ?', {plate})
+        if result[1] then
+            properties = json.decode(result[1].mods)
         end
-         MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?'..shared, {plate}, function(result)
-            if result[1] then
-                cb(true)
-            else
-                cb(false)
+        cb(properties)
+    end)
+else
+    QBCore.Functions.CreateCallback("qb-garage:server:checkOwnership", function(source, cb, plate, garageType, garage, gang)
+        plate = string.upper(plate)
+        local src = source
+        local pData = QBCore.Functions.GetPlayer(src)
+        if garageType == "public" then        --Public garages only for player cars
+            local addSQLForAllowParkingAnyonesVehicle = ""
+            if not Config.AllowParkingAnyonesVehicle then
+                addSQLForAllowParkingAnyonesVehicle = " AND citizenid = '"..pData.PlayerData.citizenid.."' "
             end
-        end)
-    end
-end)
+            MySQL.query('SELECT * FROM player_vehicles WHERE plate = ? ' .. addSQLForAllowParkingAnyonesVehicle,{plate}, function(result)
+                if result[1] then
+                    cb(true)
+                else
+                    cb(false)
+                end
+            end)
+        elseif garageType == "house" then     --House garages only for player cars that have keys of the house
+            MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?', {plate}, function(result)
+                if result[1] then
+                    cb(true)
+                else
+                    cb(false)
+                end
+            end)
+        elseif garageType == "gang" then        --Gang garages only for gang members cars (for sharing)
+            MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?', {plate}, function(result)
+                if result[1] then
+                    --Check if found owner is part of the gang
+                    local Player = QBCore.Functions.GetPlayer(source)
+                    local playerGang = Player.PlayerData.gang.name
+                    cb(playerGang == gang)
+                else
+                    cb(false)
+                end
+            end)
+        else                            --Job garages only for cars that are owned by someone (for sharing and service) or only by player depending of config
+            local shared = ''
+            if not TableContains(Config.SharedJobGarages, garage) then
+                shared = " AND citizenid = '"..pData.PlayerData.citizenid.."'"
+            end
+            MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?'..shared, {plate}, function(result)
+                if result[1] then
+                    cb(true)
+                else
+                    cb(false)
+                end
+            end)
+        end
+    end)
+    QBCore.Functions.CreateCallback("qb-garage:server:GetVehicleProperties", function(source, cb, plate)
+        local properties = {}
+        local result = MySQL.query.await('SELECT mods FROM player_vehicles WHERE plate = ?', {plate})
+        if result[1] then
+            properties = json.decode(result[1].mods)
+        end
+        cb(properties)
+    end)
+end
 
-QBCore.Functions.CreateCallback("qb-garage:server:GetVehicleProperties", function(source, cb, plate)
-    local properties = {}
-    local result = MySQL.query.await('SELECT mods FROM player_vehicles WHERE plate = ?', {plate})
-    if result[1] then
-        properties = json.decode(result[1].mods)
-    end
-    cb(properties)
-end)
-
-RegisterNetEvent('qb-garage:server:updateVehicle', function(state, fuel, engine, body, properties, plate, garage, location, damage)
-    plate = string.upper(plate)
-    if location and type(location) == 'vector3' then
-        MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, fuel = ?, engine = ?, body = ?, mods = ?, parkingspot = ? WHERE plate = ?',{state, garage, fuel, engine, body, json.encode(properties), json.encode(location), plate})
-    else
-        MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, fuel = ?, engine = ?, body = ?, mods = ? WHERE plate = ?', {state, garage, fuel, engine, body, json.encode(properties), plate})
-    end
-end)
-
-RegisterNetEvent('qb-garage:server:updateVehicleState', function(state, plate, garage)
-    plate = string.upper(plate)
-    MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',{state, garage, 0, plate})
-end)
+if Config.BFakePlates then
+    RegisterNetEvent('qb-garage:server:updateVehicle', function(state, fuel, engine, body, plate, properties, garage, location, damage)
+        local hasFakePlate = exports['brazzers-fakeplates']:getPlateFromFakePlate(plate)
+        if hasFakePlate then plate = hasFakePlate end
+        Wait(100)
+    
+        if location and type(location) == 'vector3' then
+            if Config.StoreDamageAccuratly then
+                MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, fuel = ?, engine = ?, body = ?, mods = ?, parkingspot = ?, damage = ? WHERE plate = ?',{state, garage, fuel, engine, body, json.encode(properties), json.encode(location), json.encode(damage), plate})
+            else
+                MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, fuel = ?, engine = ?, body = ?, mods = ?, parkingspot = ? WHERE plate = ?',{state, garage, fuel, engine, body, json.encode(properties), json.encode(location), plate})
+            end
+        else
+            if Config.StoreDamageAccuratly then
+                MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, fuel = ?, engine = ?, body = ?, mods = ?, damage = ? WHERE plate = ?',{state, garage, fuel, engine, body, json.encode(properties), json.encode(damage), plate})
+            else
+                MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, fuel = ?, engine = ?, body = ?, mods = ? WHERE plate = ?', {state, garage, fuel, engine, body, json.encode(properties), plate})
+            end
+        end
+    end)
+    RegisterNetEvent('qb-garage:server:updateVehicleState', function(state, plate, garage)
+        local hasFakePlate = exports['brazzers-fakeplates']:getPlateFromFakePlate(plate)
+        if hasFakePlate then plate = hasFakePlate end
+        Wait(100)
+    
+        MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',{state, garage, 0, plate})
+    end)
+else
+    RegisterNetEvent('qb-garage:server:updateVehicle', function(state, fuel, engine, body, properties, plate, garage, location, damage)
+        plate = string.upper(plate)
+        if location and type(location) == 'vector3' then
+            MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, fuel = ?, engine = ?, body = ?, mods = ?, parkingspot = ? WHERE plate = ?',{state, garage, fuel, engine, body, json.encode(properties), json.encode(location), plate})
+        else
+            MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, fuel = ?, engine = ?, body = ?, mods = ? WHERE plate = ?', {state, garage, fuel, engine, body, json.encode(properties), plate})
+        end
+    end)
+    RegisterNetEvent('qb-garage:server:updateVehicleState', function(state, plate, garage)
+        plate = string.upper(plate)
+        MySQL.update('UPDATE player_vehicles SET state = ?, garage = ?, depotprice = ? WHERE plate = ?',{state, garage, 0, plate})
+    end)
+end
 
 RegisterNetEvent('qb-garages:server:UpdateOutsideVehicles', function(Vehicles)
     local src = source

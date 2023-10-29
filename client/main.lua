@@ -148,7 +148,9 @@ function RemoveRadialOptions()
     end
 end
 -- Menus
-local function PublicGarage(garageName, type)
+
+--Old menu
+--[[ local function PublicGarage(garageName, type)
     local garage = Config.Garages[garageName]
     local categories = garage.vehicleCategories
     local superCategory = GetSuperCategoryFromCategories(categories)
@@ -182,9 +184,27 @@ local function PublicGarage(garageName, type)
     })
 
     lib.showContext('vehicles_menu')
+end ]]
+
+local function PublicGarage(garageName, type)
+    local garage = Config.Garages[garageName]
+    local categories = garage.vehicleCategories
+    local superCategory = GetSuperCategoryFromCategories(categories)
+
+    local args = {
+        garageId = garageName,
+        garage = garage,
+        categories = categories,
+        header = Lang:t("menu.header." .. garage.type .. "_" .. superCategory, {
+            value = garage.label
+        }),
+        superCategory = superCategory,
+        type = type
+    }
+    TriggerEvent('qb-garages:client:GarageMenu', args)
 end
 
-local function MenuHouseGarage()
+--[[ local function MenuHouseGarage()
     local superCategory = GetSuperCategoryFromCategories(Config.HouseGarageCategories)
 
     lib.registerContext({
@@ -214,6 +234,20 @@ local function MenuHouseGarage()
     })
 
     lib.showContext('vehicles_menu')
+end ]]
+
+local function MenuHouseGarage()
+    local superCategory = GetSuperCategoryFromCategories(Config.HouseGarageCategories)
+
+    local args = {
+        garageId = CurrentHouseGarage,
+        categories = Config.HouseGarageCategories,
+        header = Config.HouseGarages[CurrentHouseGarage].label,
+        garage = Config.HouseGarages[CurrentHouseGarage],
+        superCategory = superCategory,
+        type = 'house'
+    }
+    TriggerEvent('qb-garages:client:GarageMenu', args)
 end
 
 local function ApplyVehicleDamage(currentVehicle, veh)

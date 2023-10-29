@@ -1,4 +1,6 @@
-# qb-garages
+# Discord [Click Here](https://discord.gg/cCUdZF24az)
+
+# qb-garages [Original](https://github.com/JonasDev17/qb-garages)
 
 
 

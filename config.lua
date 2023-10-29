@@ -117,6 +117,10 @@ Config.DrawTextPosition = 'left' -- location of drawtext: left, top, right
 ]]
 
 Config.UseIMG = true
+Config.CustomIMG = {
+    ["skyline"] = "https://i.ytimg.com/vi/tdVNr5B5iC4/maxresdefault.jpg",
+    ["r35"] = "https://gtacarmods.com/wp-content/uploads/2021/08/271590_20210818160759_1.jpg"
+}
 
 Config.JobVehicles = {
 	['someRandomIdentifier'] = { -- <-- jobGarageIdentifier

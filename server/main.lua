@@ -119,17 +119,24 @@ RegisterNetEvent('qb-garages:server:addimage', function (veh, vehname)
     if string.find(veh, " ") then
         veh = string.gsub(veh, " ", "%%20")
     end
-    if simages[vehname] then
-        TriggerClientEvent('qb-garages:client:addimage', src, simages[vehname], vehname)
+    if Config.CustomIMG[vehname] then
+        TriggerClientEvent('qb-garages:client:addimage', src, Config.CustomIMG[vehname], vehname)
     else
-        PerformHttpRequest("http://gta.vercel.app/api/vehicles/"..veh, function(err, data, headers)
-            if data ~= "not found" then
-                local myData = json.decode(data)
-                local image = myData.images["frontQuarter"]
-                simages[vehname] = image
-                TriggerClientEvent('qb-garages:client:addimage', src, image, vehname)
-            end
-        end, "GET", "")
+        if simages[vehname] then
+            TriggerClientEvent('qb-garages:client:addimage', src, simages[vehname], vehname)
+        else
+            PerformHttpRequest("http://gta.vercel.app/api/vehicles/"..veh, function(err, data, headers)
+                if data ~= "not found" then
+                    local myData = json.decode(data)
+                    local image = myData.images["frontQuarter"]
+                    simages[vehname] = image
+                    TriggerClientEvent('qb-garages:client:addimage', src, image, vehname)
+                else
+                    simages[vehname] = "none"
+                    TriggerClientEvent('qb-garages:client:addimage', src, "none", vehname)
+                end
+            end, "GET", "")
+        end
     end
 end)
 

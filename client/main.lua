@@ -550,9 +550,13 @@ local function RegisterHousePoly(house)
     zone:onPlayerInOut(function(isPointInside)
         if isPointInside then
             CurrentHouseGarage = house
-            exports['qb-core']:DrawText(Config.HouseParkingDrawText, Config.DrawTextPosition)
+            local options = {
+                position = "left-center",
+                icon = "car"
+            }
+            lib.showTextUI(Config.HouseParkingDrawText, options)
         else
-            exports['qb-core']:HideText()
+            lib.hideTextUI()
             RemoveRadialOptions()
             CurrentHouseGarage = nil
         end

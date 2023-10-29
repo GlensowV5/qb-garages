@@ -1,4 +1,4 @@
-Config = Config or {}
+Config = Config or {} a
 --[[
     Author: JDev17#8160
     TRANSLATION:

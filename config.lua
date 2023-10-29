@@ -116,6 +116,8 @@ Config.DrawTextPosition = 'left' -- location of drawtext: left, top, right
     -- set useVehicleSpawner = true for each garage that has type job and should use the vehicle spawner instead of personal vehicles
 ]]
 
+Config.UseIMG = true
+
 Config.JobVehicles = {
 	['someRandomIdentifier'] = { -- <-- jobGarageIdentifier
         label = "Police Vehicles",

@@ -15,6 +15,11 @@ local Translations = {
     success = {
         vehicle_parked = "Vehicle Stored",
     },
+    radial = {
+        park_vehicle = "Park Vehicle",
+        open_garage = "Garage",
+        open_impound = "Impound Garage",
+    },
     menu = {
         header = {
             house_garage = "House Garage",
@@ -43,8 +48,8 @@ local Translations = {
         },
         text = {
             vehicles = "View stored vehicles!",
-            depot = "Plate: %{value}<br>Fuel: %{value2} | Engine: %{value3} | Body: %{value4}",
-            garage = "State: %{value}<br>Fuel: %{value2} | Engine: %{value3} | Body: %{value4}",
+            depot = "Plate: %{value}\nEngine: %{value2} | Body: %{value3}",
+            garage = "State: %{value}\nEngine: %{value2} | Body: %{value3}",
         }
     },
     status = {

@@ -1,6 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local OutsideVehicles = {}
 local VehicleSpawnerVehicles = {}
+local simages = {}
 
 local function TableContains (tab, val)
     if type(val) == "table" then
@@ -19,6 +20,118 @@ local function TableContains (tab, val)
     end
     return false
 end
+
+QBCore.Commands.Add("pgarage", "Player's Vehicles", {}, false, function(source, args)
+    local src = source
+    if args[1] then
+        local Player = QBCore.Functions.GetPlayer(tonumber(args[1]))
+        local pcid = Player.PlayerData.citizenid
+        local pname = Player.PlayerData.charinfo.firstname.." "..Player.PlayerData.charinfo.lastname.." ["..pcid.."]"
+        local result = nil
+        result = MySQL.Sync.fetchAll('SELECT * FROM player_vehicles WHERE citizenid = @citizenid', {
+            ['@citizenid'] = pcid
+        })
+        if result[1] then
+            local menuoptions = {}
+            for k, v in pairs(result) do
+                local enginePercent = v.engine / 10
+                local bodyPercent = v.engine / 10
+                menuoptions[#menuoptions+1] = {
+                    title = string.upper(v.vehicle).." ("..v.plate..")",
+                    description = Lang:t('menu.text.depot', {
+                        value = v.plate,
+                        value2 = enginePercent,
+                        value3 = bodyPercent,
+                        value4 = v.state
+                    }),
+                    progress = v.fuel,
+                    colorScheme = "green",
+                    event = "qb-garages:client:managecar",
+                    args = {
+                        v.vehicle, v.plate, v
+                    }
+                }
+            end
+            TriggerClientEvent('qb-garages:client:openmanage', src, pname, menuoptions)
+        end
+    end
+end)
+
+QBCore.Commands.Add("deletevehicle", "Delete a vehicle with plate", {}, false, function(source, args)
+    TriggerEvent('qb-garages:server:deletecar', args[1])
+end)
+
+RegisterNetEvent('qb-garages:server:deletecar', function (plate)
+    local src = source
+    MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?', {plate}, function(result)
+        if result[1] then
+            MySQL.query('DELETE FROM player_vehicles WHERE plate = ?', {plate}, function(results)
+                if results then
+                    local data = {
+                        title = "Success",
+                        description = "You succesfully deleted car with plate: "..plate,
+                        style = {
+                            backgroundColor = '#141517',
+                            color = '#C1C2C5',
+                            ['.description'] = {
+                              color = '#909296'
+                            }
+                        },
+                        icon = "check"
+                    }
+                    TriggerClientEvent('ox_lib:notify', src, data)
+                else
+                    local data = {
+                        title = "Error",
+                        description = "An error is occured",
+                        style = {
+                            backgroundColor = '#141517',
+                            color = '#C1C2C5',
+                            ['.description'] = {
+                              color = '#909296'
+                            }
+                        },
+                        icon = "ban"
+                    }
+                    TriggerClientEvent('ox_lib:notify', src, data)
+                end
+            end)
+        else
+            local data = {
+                title = "Error",
+                description = "Plate is wrong.",
+                style = {
+                    backgroundColor = '#141517',
+                    color = '#C1C2C5',
+                    ['.description'] = {
+                      color = '#909296'
+                    }
+                },
+                icon = "ban"
+            }
+            TriggerClientEvent('ox_lib:notify', src, data)
+        end
+    end)
+end)
+
+RegisterNetEvent('qb-garages:server:addimage', function (veh, vehname)
+    local src = source
+    if string.find(veh, " ") then
+        veh = string.gsub(veh, " ", "%%20")
+    end
+    if simages[vehname] then
+        TriggerClientEvent('qb-garages:client:addimage', src, simages[vehname], vehname)
+    else
+        PerformHttpRequest("http://gta.vercel.app/api/vehicles/"..veh, function(err, data, headers)
+            if data ~= "not found" then
+                local myData = json.decode(data)
+                local image = myData.images["frontQuarter"]
+                simages[vehname] = image
+                TriggerClientEvent('qb-garages:client:addimage', src, image, vehname)
+            end
+        end, "GET", "")
+    end
+end)
 
 QBCore.Functions.CreateCallback("qb-garage:server:GetOutsideVehicle", function(source, cb, plate)
     plate = string.upper(plate)

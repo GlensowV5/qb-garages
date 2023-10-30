@@ -125,10 +125,10 @@ RegisterNetEvent('qb-garages:server:addimage', function (veh, vehname)
         if simages[vehname] then
             TriggerClientEvent('qb-garages:client:addimage', src, simages[vehname], vehname)
         else
-            PerformHttpRequest("http://gta.vercel.app/api/vehicles/"..veh, function(err, data, headers)
-                if data ~= "not found" then
-                    local myData = json.decode(data)
-                    local image = myData.images["frontQuarter"]
+            local link = "https://raw.githubusercontent.com/matthias-codes/v-vehicle-images/main/images/"..vehname..".png"
+            PerformHttpRequest(link, function(err, data, headers)
+                if data ~= "404: Not Found" then
+                    local image = link
                     simages[vehname] = image
                     TriggerClientEvent('qb-garages:client:addimage', src, image, vehname)
                 else

@@ -1,5 +1,14 @@
 # Discord [Click Here](https://discord.gg/cCUdZF24az)
 
+- New image system
+- Changed qb-menu to ox_lib menu
+- Support Brazzers-FakePlates
+- Some errors has fixed
+
+Depends:
+
+ox_lib
+
 # qb-garages [Original](https://github.com/JonasDev17/qb-garages)
 
 

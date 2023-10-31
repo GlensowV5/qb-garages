@@ -555,7 +555,7 @@ else
 end
 
 if Config.BFakePlates then
-    RegisterNetEvent('qb-garage:server:updateVehicle', function(state, fuel, engine, body, plate, properties, garage, location, damage)
+    RegisterNetEvent('qb-garage:server:updateVehicle', function(state, fuel, engine, body, properties, plate, garage, location, damage)
         local hasFakePlate = exports['brazzers-fakeplates']:getPlateFromFakePlate(plate)
         if hasFakePlate then plate = hasFakePlate end
         Wait(100)

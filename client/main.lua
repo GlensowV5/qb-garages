@@ -955,93 +955,193 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                         end
                     end
                     if type == "depot" then
-                        local args = {
-                            vehicle = v,
-                            vehicleModel = v.vehicle,
-                            type = type,
-                            garage = garage
-                        }
-                        MenuGarageOptions[#MenuGarageOptions + 1] = {
-                            title = vname.. " ["..v.plate.."] ("..v.depotprice..")",
-                            description = Lang:t('menu.text.depot', {
-                                value = v.plate,
-                                value2 = enginePercent,
-                                value3 = bodyPercent,
-                                value4 = v.state
-                            }),
-                            progress = v.fuel,
-                            image = images[v.vehicle],
-                            colorScheme = "green",
-                            onSelect = function ()
-                                TriggerEvent('qb-garages:client:TakeOutDepot', args)
-                            end
-                        }
+                        if v.fakeplate then
+                            local args = {
+                                vehicle = v,
+                                vehicleModel = v.vehicle,
+                                type = type,
+                                garage = garage
+                            }
+                            MenuGarageOptions[#MenuGarageOptions + 1] = {
+                                title = vname.. " ["..v.plate.."] ("..v.depotprice..")",
+                                description = Lang:t('menu.text.depot_fakeplate', {
+                                    value = v.state,
+                                    value2 = v.plate,
+                                    value3 = enginePercent,
+                                    value4 = bodyPercent,
+                                    value5 = v.fakeplate
+                                }),
+                                progress = v.fuel,
+                                image = images[v.vehicle],
+                                colorScheme = "green",
+                                onSelect = function ()
+                                    TriggerEvent('qb-garages:client:TakeOutDepot', args)
+                                end
+                            }
+                        else
+                            local args = {
+                                vehicle = v,
+                                vehicleModel = v.vehicle,
+                                type = type,
+                                garage = garage
+                            }
+                            MenuGarageOptions[#MenuGarageOptions + 1] = {
+                                title = vname.. " ["..v.plate.."] ("..v.depotprice..")",
+                                description = Lang:t('menu.text.depot', {
+                                    value = v.state,
+                                    value2 = v.plate,
+                                    value3 = enginePercent,
+                                    value4 = bodyPercent,
+                                }),
+                                progress = v.fuel,
+                                image = images[v.vehicle],
+                                colorScheme = "green",
+                                onSelect = function ()
+                                    TriggerEvent('qb-garages:client:TakeOutDepot', args)
+                                end
+                            }
+                        end
                     else
-                        local args = {
-                            vehicle = v,
-                            vehicleModel = v.vehicle,
-                            type = type,
-                            garage = garage,
-                            superCategory = superCategory
-                        }
-                        MenuGarageOptions[#MenuGarageOptions + 1] = {
-                            title = vname.. " ["..v.plate.."]",
-                            description = Lang:t('menu.text.garage', {
-                                value = v.state,
-                                value2 = enginePercent,
-                                value3 = bodyPercent
-                            }),
-                            progress = v.fuel,
-                            image = images[v.vehicle],
-                            colorScheme = "green",
-                            onSelect = function ()
-                                TriggerEvent('qb-garages:client:TakeOutGarage', args)
-                            end
-                        }
+                        if v.fakeplate then
+                            local args = {
+                                vehicle = v,
+                                vehicleModel = v.vehicle,
+                                type = type,
+                                garage = garage,
+                                superCategory = superCategory
+                            }
+                            MenuGarageOptions[#MenuGarageOptions + 1] = {
+                                title = vname.. " ["..v.plate.."]",
+                                description = Lang:t('menu.text.garage_fakeplate', {
+                                    value = v.state,
+                                    value2 = v.plate,
+                                    value3 = enginePercent,
+                                    value4 = bodyPercent,
+                                    value5 = v.fakeplate
+                                }),
+                                progress = v.fuel,
+                                image = images[v.vehicle],
+                                colorScheme = "green",
+                                onSelect = function ()
+                                    TriggerEvent('qb-garages:client:TakeOutGarage', args)
+                                end
+                            }
+                        else
+                            local args = {
+                                vehicle = v,
+                                vehicleModel = v.vehicle,
+                                type = type,
+                                garage = garage,
+                                superCategory = superCategory
+                            }
+                            MenuGarageOptions[#MenuGarageOptions + 1] = {
+                                title = vname.. " ["..v.plate.."]",
+                                description = Lang:t('menu.text.garage', {
+                                    value2 = v.state,
+                                    value = v.plate,
+                                    value3 = enginePercent,
+                                    value4 = bodyPercent,
+                                }),
+                                progress = v.fuel,
+                                image = images[v.vehicle],
+                                colorScheme = "green",
+                                onSelect = function ()
+                                    TriggerEvent('qb-garages:client:TakeOutGarage', args)
+                                end
+                            }
+                        end
                     end
                 else
                     if type == "depot" then
-                        local args = {
-                            vehicle = v,
-                            vehicleModel = v.vehicle,
-                            type = type,
-                            garage = garage
-                        }
-                        MenuGarageOptions[#MenuGarageOptions + 1] = {
-                            title = vname.. " ["..v.plate.."] ("..v.depotprice..")",
-                            description = Lang:t('menu.text.depot', {
-                                value = v.plate,
-                                value2 = enginePercent,
-                                value3 = bodyPercent,
-                                value4 = v.state
-                            }),
-                            progress = v.fuel,
-                            colorScheme = "green",
-                            onSelect = function ()
-                                TriggerEvent('qb-garages:client:TakeOutDepot', args)
-                            end
-                        }
+                        if v.fakeplate then
+                            local args = {
+                                vehicle = v,
+                                vehicleModel = v.vehicle,
+                                type = type,
+                                garage = garage
+                            }
+                            MenuGarageOptions[#MenuGarageOptions + 1] = {
+                                title = vname.. " ["..v.plate.."] ("..v.depotprice..")",
+                                description = Lang:t('menu.text.depot_fakeplate', {
+                                    value = v.state,
+                                    value2 = v.plate,
+                                    value3 = enginePercent,
+                                    value4 = bodyPercent,
+                                    value5 = v.fakeplate
+                                }),
+                                progress = v.fuel,
+                                colorScheme = "green",
+                                onSelect = function ()
+                                    TriggerEvent('qb-garages:client:TakeOutDepot', args)
+                                end
+                            }
+                        else
+                            local args = {
+                                vehicle = v,
+                                vehicleModel = v.vehicle,
+                                type = type,
+                                garage = garage
+                            }
+                            MenuGarageOptions[#MenuGarageOptions + 1] = {
+                                title = vname.. " ["..v.plate.."] ("..v.depotprice..")",
+                                description = Lang:t('menu.text.depot', {
+                                    value = v.state,
+                                    value2 = v.plate,
+                                    value3 = enginePercent,
+                                    value4 = bodyPercent,
+                                }),
+                                progress = v.fuel,
+                                colorScheme = "green",
+                                onSelect = function ()
+                                    TriggerEvent('qb-garages:client:TakeOutDepot', args)
+                                end
+                            }
+                        end
                     else
-                        local args = {
-                            vehicle = v,
-                            vehicleModel = v.vehicle,
-                            type = type,
-                            garage = garage,
-                            superCategory = superCategory
-                        }
-                        MenuGarageOptions[#MenuGarageOptions + 1] = {
-                            title = vname.. " ["..v.plate.."]",
-                            description = Lang:t('menu.text.garage', {
-                                value = v.state,
-                                value2 = enginePercent,
-                                value3 = bodyPercent
-                            }),
-                            progress = v.fuel,
-                            colorScheme = "green",
-                            onSelect = function ()
-                                TriggerEvent('qb-garages:client:TakeOutGarage', args)
-                            end
-                        }
+                        if v.fakeplate then
+                            local args = {
+                                vehicle = v,
+                                vehicleModel = v.vehicle,
+                                type = type,
+                                garage = garage,
+                                superCategory = superCategory
+                            }
+                            MenuGarageOptions[#MenuGarageOptions + 1] = {
+                                title = vname.. " ["..v.plate.."]",
+                                description = Lang:t('menu.text.garage_fakeplate', {
+                                    value = v.state,
+                                    value2 = enginePercent,
+                                    value3 = bodyPercent,
+                                    value4 = v.fakeplate
+                                }),
+                                progress = v.fuel,
+                                colorScheme = "green",
+                                onSelect = function ()
+                                    TriggerEvent('qb-garages:client:TakeOutGarage', args)
+                                end
+                            }
+                        else
+                            local args = {
+                                vehicle = v,
+                                vehicleModel = v.vehicle,
+                                type = type,
+                                garage = garage,
+                                superCategory = superCategory
+                            }
+                            MenuGarageOptions[#MenuGarageOptions + 1] = {
+                                title = vname.. " ["..v.plate.."]",
+                                description = Lang:t('menu.text.garage', {
+                                    value = v.state,
+                                    value2 = enginePercent,
+                                    value3 = bodyPercent
+                                }),
+                                progress = v.fuel,
+                                colorScheme = "green",
+                                onSelect = function ()
+                                    TriggerEvent('qb-garages:client:TakeOutGarage', args)
+                                end
+                            }
+                        end
                     end
                 end
                 lib.registerContext({

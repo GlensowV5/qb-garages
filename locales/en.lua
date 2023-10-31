@@ -48,8 +48,10 @@ local Translations = {
         },
         text = {
             vehicles = "View stored vehicles!",
-            depot = "Plate: %{value}\nEngine: %{value2} | Body: %{value3}",
-            garage = "State: %{value}\nEngine: %{value2} | Body: %{value3}",
+            depot = "State: %{value}\nPlate: %{value2}\nEngine: %{value3} | Body: %{value4}",
+            depot_fakeplate = "State: %{value}\nPlate: %{value2}\nEngine: %{value3} | Body: %{value4}\nFake Plate: %{value5}",
+            garage = "State: %{value}\nPlate: %{value2}\nEngine: %{value3} | Body: %{value4}",
+            garage_fakeplate = "State: %{value}\nPlate: %{value2}\nEngine: %{value3} | Body: %{value4}\nFake Plate: %{value5}",
         }
     },
     status = {

@@ -121,7 +121,7 @@ Config.CustomIMG = {
     ["skyline"] = "https://i.ytimg.com/vi/tdVNr5B5iC4/maxresdefault.jpg",
     ["r35"] = "https://gtacarmods.com/wp-content/uploads/2021/08/271590_20210818160759_1.jpg"
 }
-Config.BFakePlates = false --If you use Brazzers-FakePlates change this to true
+Config.BFakePlates = true --If you use Brazzers-FakePlates change this to true
 
 Config.JobVehicles = {
 	['someRandomIdentifier'] = { -- <-- jobGarageIdentifier

@@ -116,9 +116,6 @@ end)
 
 RegisterNetEvent('qb-garages:server:addimage', function (veh, vehname)
     local src = source
-    if string.find(veh, " ") then
-        veh = string.gsub(veh, " ", "%%20")
-    end
     if Config.CustomIMG[vehname] then
         TriggerClientEvent('qb-garages:client:addimage', src, Config.CustomIMG[vehname], vehname)
     else
@@ -132,8 +129,8 @@ RegisterNetEvent('qb-garages:server:addimage', function (veh, vehname)
                     simages[vehname] = image
                     TriggerClientEvent('qb-garages:client:addimage', src, image, vehname)
                 else
-                    simages[vehname] = "none"
-                    TriggerClientEvent('qb-garages:client:addimage', src, "none", vehname)
+                    simages[vehname] = "https://upload.wikimedia.org/wikipedia/commons/e/ea/No_image_preview.png"
+                    TriggerClientEvent('qb-garages:client:addimage', src, simages[vehname], vehname)
                 end
             end, "GET", "")
         end

@@ -1110,9 +1110,10 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                                 title = vname.. " ["..v.plate.."]",
                                 description = Lang:t('menu.text.garage_fakeplate', {
                                     value = v.state,
-                                    value2 = enginePercent,
-                                    value3 = bodyPercent,
-                                    value4 = v.fakeplate
+                                    value2 = v.plate,
+                                    value3 = enginePercent,
+                                    value4 = bodyPercent,
+                                    value5 = v.fakeplate
                                 }),
                                 progress = v.fuel,
                                 colorScheme = "green",
@@ -1132,8 +1133,9 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                                 title = vname.. " ["..v.plate.."]",
                                 description = Lang:t('menu.text.garage', {
                                     value = v.state,
-                                    value2 = enginePercent,
-                                    value3 = bodyPercent
+                                    value2 = v.plate,
+                                    value3 = enginePercent,
+                                    value4 = bodyPercent
                                 }),
                                 progress = v.fuel,
                                 colorScheme = "green",

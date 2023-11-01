@@ -390,13 +390,17 @@ local function CanParkVehicle(veh, garageName, vehLocation)
     end
 
     local parkingSpots = garage.ParkingSpots and garage.ParkingSpots or {}
-    if next(parkingSpots) then
-        local _, closestDistance, closestLocation = GetClosestLocation(parkingSpots, vehLocation)
-        if closestDistance >= parkingDistance then
-            QBCore.Functions.Notify(Lang:t("error.too_far_away"), "error", 4500)
-            return false
+    if Config.EnableParkingSpots then
+        if next(parkingSpots) then
+            local _, closestDistance, closestLocation = GetClosestLocation(parkingSpots, vehLocation)
+            if closestDistance >= parkingDistance then
+                QBCore.Functions.Notify(Lang:t("error.too_far_away"), "error", 4500)
+                return false
+            else
+                return true, closestLocation
+            end
         else
-            return true, closestLocation
+            return true
         end
     else
         return true
